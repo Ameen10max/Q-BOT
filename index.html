@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+    <link href="https://fonts.cdnfonts.com/css/Amerika" rel="stylesheet">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            
+    font-family:'Poppins',
+     sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #0f0f0f, #1a1a2e);
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Title */
+        .qbot-title {
+            font-size: 50px;
+            font-weight: bold;
+            color: #00FF00;
+            text-shadow: 0 0 10px #FF0000, 0 0 20px #FF0000;
+            margin-bottom: 15px;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            width: 400px;
+            height: 500px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        /* Chat Box */
+        .chat-box {
+            flex-grow: 1;
+            padding: 10px;
+            overflow-y: auto;
+            max-height: 400px;
+            border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            scroll-behavior: smooth;
+        }
+
+        /* Message Styles */
+        .user-message, .bot-message {
+            padding: 12px;
+            margin: 6px;
+            border-radius: 15px;
+            max-width: 70%;
+            box-shadow: 0px 4px 6px rgba(0, 255, 255, 0.3);
+            animation: fadeIn 0.3s ease-in-out;
+            position: relative;
+        }
+
+        .user-message {
+            background: #00ff88;
+            color: black;
+            align-self: flex-end;
+            text-align: right;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        .bot-message {
+            background: #008CBA;
+            color: white;
+            align-self: flex-start;
+            text-align: left;
+            box-shadow: 0 0 10px #008CBA;
+        }
+
+        /* Typing Animation */
+        .typing {
+            display: inline-block;
+            font-size: 14px;
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .typing::after {
+            content: " .";
+            animation: typingDots 1.5s infinite steps(3);
+        }
+
+        @keyframes typingDots {
+            0% { content: " ."; }
+            33% { content: " .."; }
+            66% { content: " ..."; }
+        }
+
+        /* Input Container */
+        .input-container {
+            display: flex;
+            padding: 8px;
+            border-top: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        /* Input Field */
+        #user-input {
+            flex-grow: 1;
+            padding: 12px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #0ff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            transition: 0.3s;
+        }
+
+        #user-input:focus {
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+        }
+
+        /* Send Button */
+        #send-btn {
+            margin-left: 10px;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 50%;
+            background: #0ff;
+            color: black;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 15px #0ff;
+        }
+
+        #send-btn:hover {
+            background: #00ff88;
+            box-shadow: 0 0 20px #00ff88;
+            transform: scale(1.1);
+        }
+.bubbles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    z-index: -1;
+}
+.bubble {
+    position: absolute;
+    bottom: -50px;
+    width: 80px;
+    height: 90px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    animation: float 8s infinite ease-in-out;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh);
+        opacity: 0;
+    }
+}
+.bubble:nth-child(1) { left: 10%; width: 15px; height: 15px; animation-duration: 6s; }
+.bubble:nth-child(2) { left: 20%; width: 25px; height: 25px; animation-duration: 8s; }
+.bubble:nth-child(3) { left: 30%; width: 10px; height: 10px; animation-duration: 7s; }
+.bubble:nth-child(4) { left: 40%; width: 30px; height: 30px; animation-duration: 5s; }
+.bubble:nth-child(5) { left: 50%; width: 20px; height: 20px; animation-duration: 6.5s; }
+.bubble:nth-child(6) { left: 60%; width: 25px; height: 25px; animation-duration: 7.5s; }
+.bubble:nth-child(7) { left: 70%; width: 15px; height: 15px; animation-duration: 5.5s; }
+.bubble:nth-child(8) { left: 80%; width: 20px; height: 20px; animation-duration: 8.2s; }
+.bubble:nth-child(9) { left: 90%; width: 30px; height: 30px; animation-duration: 9s; }
+.bubble:nth-child(10) { left: 95%; width: 18px; height: 18px; animation-duration: 12.7s; }
+.bubble:nth-child(11) { left: 95%; width: 18px; height: 18px; animation-duration: 11.6s; }
+.bubble:nth-child(12) { left: 15%; width: 19px; height: 28px; animation-duration: 0.7s; }
+.bubble:nth-child(1) { left: 10%; width: 15px; height: 15px; animation-duration: 6s; }
+.bubble:nth-child(2) { left: 20%; width: 25px; height: 25px; animation-duration: 14s; }
+.bubble:nth-child(3) { left: 30%; width: 10px; height: 10px; animation-duration: 11s; }
+.bubble:nth-child(4) { left: 40%; width: 30px; height: 30px; animation-duration: 5s; }
+.bubble:nth-child(5) { left: 50%; width: 20px; height: 20px; animation-duration: 6.5s; }
+.bubble:nth-child(6) { left: 60%; width: 25px; height: 25px; animation-duration: 7.5s; }
+.bubble:nth-child(7) { left: 70%; width: 15px; height: 15px; animation-duration: 5.5s; }
+.bubble:nth-child(8) { left: 80%; width: 20px; height: 20px; animation-duration: 8.2s; }
+.bubble:nth-child(9) { left: 90%; width: 30px; height: 30px; animation-duration: 9s; }
+.bubble:nth-child(10) { left: 95%; width: 18px; height: 18px; animation-duration: 6.7s; }
+.bubble:nth-child(11) { left: 95%; width: 18px; height: 18px; animation-duration: 3.6s; }
+.bubble:nth-child(12) { left: 15%; width: 19px; height: 28px; animation-duration: 9.7s; }
+.bubble:nth-child(1) { background: rgba(255, 0, 0, 0.6); } /* Red */
+.bubble:nth-child(2) { background: rgba(0, 255, 0, 0.6); } /* Green */
+.bubble:nth-child(3) { background: rgba(0, 0, 255, 0.6); } /* Blue */
+.bubble:nth-child(4) { background: rgba(255, 255, 0, 0.6); } /* Yellow */
+.bubble:nth-child(5) { background: rgba(255, 0, 255, 0.6); } /* Magenta */
+.bubble:nth-child(6) { background: rgba(0, 255, 255, 0.6); } /* Cyan */
+.bubble:nth-child(7) { background: rgba(255, 0, 0, 0.6); } /* Red */
+.bubble:nth-child(8) { background: rgba(0, 255, 0, 0.6); } /* Green */
+.bubble:nth-child(9) { background: rgba(0, 0, 255, 0.6); } /* Blue */
+.bubble:nth-child(10) { background: rgba(255, 255, 0, 0.6); } /* Yellow */
+.bubble:nth-child(11) { background: rgba(255, 0, 255, 0.6); } /* Magenta */
+.bubble:nth-child(12) { background: rgba(0, 255, 255, 0.6); } /* Cyan */
+@import url('https://fonts.cdnfonts.com/css/amerika'); /* Import Amerika font */
+.qbot-title {
+    font-size: 50px; /* Adjust size as needed */
+    font-weight: bold;
+    font-family: 'Amerika', sans-serif;
+    color: #c8b559;
+    text-align: center;
+    margin-bottom: 20px;
+}
+        /* Fade In Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }.bubbles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    z-index: -1;
+}
+.bubble {
+    position: absolute;
+    bottom: -50px;
+    width: 80px;
+    height: 90px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    animation: float 8s infinite ease-in-out;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh);
+        opacity: 0;
+        
+    }
+}
+
+}
+    </style>
+</head>
+<body>
+
+    
+    </main>
+
+    <!-- Bubble Background (Put it Here) -->
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+</body>
+    <div class="qbot-title">QBOT</div>
+
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box"></div>
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Type a message..." autocomplete="off">
+            <button id="send-btn">Send</button>
+        </div>
+    </div>
+    <script>
+        document.getElementById('send-btn').addEventListener('click', function() {
+            sendMessage();
+        });
+
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const userInput = document.getElementById('user-input').value.trim();
+            if (userInput) {
+                appendMessage(userInput, 'user-message');
+                document.getElementById('user-input').value = '';
+                setTimeout(() => appendMessage(getBotResponse(userInput), 'bot-message'), 500);
+            }
+        }
+
+        function appendMessage(message, className) {
+            const chatBox = document.getElementById('chat-box');
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            messageElement.classList.add(className);
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+
+        function getBotResponse(userInput) {
+            // Check if the input contains a math expression
+            if (/[\d\+\-\*\/\^\.]/.test(userInput)) {
+                return evaluateMath(userInput);  // If it matches a math expression, evaluate it
+            }
+
+            // Predefined responses
+            const responses = {
+                'hello': 'Hi there! How can I assist you today?',
+                'hi': 'Hello! What can I help you with today?',
+                'how are you': 'I\'m doing well, thank you for asking! How are you?',
+                'bye': 'Goodbye! Have a great day!',
+                'good morning': 'Good morning! How can I assist you today?',
+                'good evening': 'Good evening! How can I assist you today?',
+                'thank you': 'You\'re welcome! Let me know if you need anything else.',
+                'tell me a joke': 'Why don\'t scientists trust atoms? Because they make up everything!',
+                'who created you' : 'I was Designed and developed by Ameen Afthab and Fasal Rahman.',
+                'Who created you' : 'I was designed and developed by Ameen Afthab and Fasal Rahman.',
+                'Who made you' : 'I was designed and developed by Ameen Afthab and Fasal Rahman.',
+                'Who developed you' : 'I was designed and developed by Ameen Afthab and Fasal Rahman.',
+                'Who built you' : 'I was designed and developed by Ameen Afthab and Fasal Rahman.',
+                'Who programmed you' : 'I was designed and developed by Ameen Afthab and Fasal Rahman.',
+                'Who designed you' : 'I was designed and developed by Ameen Afthab and Fasal Rahman.',
+                'Who invented you' : 'I was designed and developed by Ameen Afthab and Fasal Rahman.',
+                'Who is responsible for you' : 'I was designed and developed by Ameen Afthab and Fasal Rahman.',
+                'iam fine too':'its a glad to hear that☺️',
+               'i have question to ask':'ask it i will do my best to answer it',
+               'how are you bro':'i am fine fine bro what about you😁',
+               'i have question':'ask it i will do my best to answer it',
+                'who is fasal rahman':'He is the subordinate of Ameen Afthab who created me',
+                'Who engineered you' : 'I was designed and developed by Ameen Afthab and Fasal Rahman.',
+                'Who brought you to life' : 'I was designed and developed by Ameen Afthab and Fasal Rahman.',
+                'Who is behind your creation' : 'I was designed and developed by Ameen Afthab and Fasal Rahman.',
+                'hey QBOT what is your gender': 'I am an AI... I don\'t have any gender... don\'t you even know this🤣.',
+                'who thought of you' : 'I was designed and developed by Ameen Afthab and Fasal Rahman.',
+                'Who is the mastermind behind you' : 'I was designed and developed by Ameen Afthab and Fasal Rahman.',
+                'Who is your creator' : 'I was designed and developed by Ameen Afthab and Fasal Rahman.',
+                'Who are the geniuses behind your design' : 'I was designed and developed by Ameen Afthab and Fasal Rahman.',
+                'default': 'Sorry, I think there is a network issue please check it,and try again',
+                'default': 'Sorry, I think there is a network issue please check it,and try again',
+                // Indian Prime Ministers
+                'who is the first prime minister of india': 'The first Prime Minister of India was Jawaharlal Nehru.',
+                'who is the prime minister of india': 'The current Prime Minister of India is Narendra Modi.',
+                'who was the first prime minister of india': 'The first Prime Minister of India was Jawaharlal Nehru.',
+                'who is the second prime minister of india': 'The second Prime Minister of India was Lal Bahadur Shastri.',
+                'who is the third prime minister of india': 'The third Prime Minister of India was Indira Gandhi.',
+                'who is the fourth prime minister of india': 'The fourth Prime Minister of India was Indira Gandhi.',
+                'who is the fifth prime minister of india': 'The fifth Prime Minister of India was Rajiv Gandhi.',
+                'who is the sixth prime minister of india': 'The sixth Prime Minister of India was Vishwanath Pratap Singh.',
+                'who is the seventh prime minister of india': 'The seventh Prime Minister of India was Chandra Shekhar.',
+                'who is the eighth prime minister of india': 'The eighth Prime Minister of India was P. V. Narasimha Rao.',
+                'who is the ninth prime minister of india': 'The ninth Prime Minister of India was Atal Bihari Vajpayee.',
+                'who is the tenth prime minister of india': 'The tenth Prime Minister of India was Atal Bihari Vajpayee.',
+                'who is the eleventh prime minister of india': 'The eleventh Prime Minister of India was Manmohan Singh.',
+                'who is the twelfth prime minister of india': 'The twelfth Prime Minister of India is Narendra Modi.',
+                'who is ameen afthab':'He is the genious who created me',
+                'what is the name of ameesha boyfriend name' : 'his name is Nikhil ',
+                'how can we use you':'you can ask any questions you want',                'what is jdt polytechnic college': 'JDT Islam Polytechnic College is a well-known technical institution located in Kozhikode, Kerala.',
+                'where is jdt polytechnic college': 'JDT Polytechnic College is in Vellimadukunnu, Kozhikode, Kerala, India.',
+                'how many teachers are there in jdt polytechnic college': 'As of 2024, JDT Polytechnic College has around 76 faculty members.',
+                'how many students are in jdt polytechnic college': 'The college has approximately 1,497 students.',
+                'what courses are available in jdt polytechnic college': 'JDT Polytechnic offers Diploma courses in Civil Engineering, Mechanical Engineering, Electrical & Electronics Engineering, and more.',
+                'who is the principal of jdt polytechnic college': 'The current principal of JDT Polytechnic College is Dr. [Insert Name].',
+                'what courses are offered at jdt polytechnic college':  'JDT Polytechnic College offers the following diploma courses:\n\n' +
+            '1) Diploma in Computer Engineering\n' +
+            '2) Diploma in Electronics & Communication Engineering\n' +
+            '3) Diploma in Mechanical Engineering\n' +
+            '4) Diploma in Civil Engineering\n' +
+            '5) Diploma in Electrical & Electronics Engineering\n' +
+            '6) Diploma in Automobile Engineering',
+
+        'tell me about diploma courses at jdt polytechnic': 
+            'JDT Polytechnic College offers diploma courses in various engineering fields:\n\n' +
+            '1) Computer Engineering\n' +
+            '2) Electronics & Communication Engineering\n' +
+            '3) Mechanical Engineering\n' +
+            '4) Civil Engineering\n' +
+            '5) Electrical & Electronics Engineering\n' +
+            '6) Automobile Engineering',
+            'what is processor': 'The Central Processing Unit (CPU) is the brain of the computer. It processes instructions, performs calculations, and manages tasks. Modern CPUs have multiple cores (dual-core, quad-core, etc.) and threads for better multitasking.',
+            'who invented gravity': 'Sir Isaac Newton formulated the law of universal gravitation in 1687 after observing an apple fall from a tree.',
+'who invented the computer': 'Charles Babbage is considered the "father of the computer" for designing the Analytical Engine in the 1830s.',
+'who invented the internet': 'The internet was developed by ARPANET, initiated by the U.S. Department of Defense in the late 1960s. Vinton Cerf and Bob Kahn are credited with developing the TCP/IP protocols.',
+'who invented electricity': 'Benjamin Franklin is credited with discovering electricity through his famous kite experiment in 1752, although its principles were studied earlier by scientists like William Gilbert.',
+'who invented the telephone': 'Alexander Graham Bell invented the telephone and was granted a patent for it in 1876.',
+'who invented the light bulb': 'Thomas Edison is credited with inventing the practical and long-lasting electric light bulb in 1879.',
+'who invented the airplane': 'The Wright brothers, Orville and Wilbur Wright, made the first successful powered flight in 1903.',
+'who invented the printing press': 'Johannes Gutenberg invented the mechanical movable-type printing press in the 15th century, revolutionizing mass communication.',
+'who invented the steam engine': 'James Watt improved the steam engine in 1765, making it more efficient, though Thomas Newcomen built the first practical steam engine in 1712.',
+'who invented the radio': 'Guglielmo Marconi is credited with inventing the radio in the late 19th century.',
+'who invented the television': 'Philo Farnsworth is credited with inventing the first electronic television in 1927.',
+'who invented the automobile': 'Karl Benz is credited with inventing the first practical automobile powered by an internal combustion engine in 1885.',
+'who invented the microscope': 'Zacharias Janssen, a Dutch spectacle maker, is credited with inventing the first compound microscope in the late 16th century.',
+'who invented the atomic bomb': 'The atomic bomb was developed during the Manhattan Project, with notable contributions from scientists like J. Robert Oppenheimer in the 1940s.',
+'who invented the refrigerator': 'Carl von Linde developed modern refrigeration technology in 1876.',
+'who invented the washing machine': 'Alva J. Fisher patented the first electric washing machine in 1908.',
+'who invented the sewing machine': 'Elias Howe patented the first practical sewing machine in 1846.',
+'who invented the submarine': 'Cornelis Drebbel built the first navigable submarine in 1620.',
+'who invented the camera': 'Joseph Nicéphore Niépce developed the first photographic camera in the early 19th century.',
+'who invented Wi-Fi': 'Wi-Fi technology was developed by a team of Australian scientists led by Dr. John O’Sullivan in 1992.',
+'who invented Bluetooth': 'Bluetooth was developed by Ericsson in 1994, with contributions from Jaap Haartsen and his team.',
+'who invented artificial intelligence': 'The term "artificial intelligence" was coined by John McCarthy in 1956, who is also considered one of the founders of AI.',
+'who invented Python': 'Guido van Rossum created the Python programming language and released it in 1991.',
+'who invented Java': 'James Gosling developed the Java programming language at Sun Microsystems in 1995.',
+'who invented C': 'Dennis Ritchie developed the C programming language at Bell Labs in 1972.',
+'who invented Linux': 'Linus Torvalds created the Linux operating system kernel in 1991.',
+'who invented Windows': 'Microsoft, led by Bill Gates and Paul Allen, released the first version of Windows in 1985.',
+'who invented Android': 'Android was developed by Android Inc., founded by Andy Rubin, and later acquired by Google in 2005.',
+'who invented iPhone': 'Apple Inc., led by Steve Jobs, introduced the first iPhone in 2007.',
+'who invented the smartwatch': 'Pebble Technology launched one of the first successful smartwatches in 2013, but Apple popularized it with the Apple Watch in 2015.',
+'who invented space travel': 'The Soviet Union launched the first human, Yuri Gagarin, into space in 1961, marking the beginning of human space travel.',
+'who invented Google': 'Larry Page and Sergey Brin founded Google in 1998 while they were PhD students at Stanford University.',
+'who invented Facebook': 'Mark Zuckerberg created Facebook in 2004 while attending Harvard University.',
+'who invented YouTube': 'YouTube was created by Steve Chen, Chad Hurley, and Jawed Karim in 2005.',
+'who invented WhatsApp': 'Brian Acton and Jan Koum founded WhatsApp in 2009, later acquired by Facebook in 2014.',
+'who invented Instagram': 'Kevin Systrom and Mike Krieger founded Instagram in 2010, which was acquired by Facebook in 2012.',
+'who invented Bitcoin': 'Bitcoin was created by an unknown person or group using the pseudonym Satoshi Nakamoto in 2009.',
+'who invented the telescope': 'Hans Lippershey, a Dutch eyeglass maker, is credited with inventing the telescope in 1608.',
+'who invented the compass': 'The magnetic compass was invented by Chinese scientists during the Han Dynasty (2nd century BCE).',
+'who invented the thermometer': 'Galileo Galilei invented a basic thermometer in the early 1600s, which was later refined by Daniel Gabriel Fahrenheit.',
+'who invented email': 'Ray Tomlinson sent the first email in 1971, introducing the use of the "@" symbol in email addresses.',
+'default': 'I’m not sure how to respond to that. Try asking me about technology, inventors, or scientific discoveries.',
+'who is the king of the jungle': 'The lion is often referred to as the king of the jungle due to its strength, dominance, and majestic appearance.',
+'how fast can a cheetah run': 'A cheetah can run at speeds of up to 60-70 miles per hour (97-113 km/h), making it the fastest land animal.',
+'which is the fastest animal in the world': 'The peregrine falcon is the fastest animal in the world, capable of diving at speeds of over 240 mph (386 km/h).',
+'which is the fastest land animal': 'The cheetah holds the title of the fastest land animal, capable of reaching speeds of 60-70 mph (97-113 km/h).',
+'which is the fastest marine animal': 'The black marlin is the fastest marine animal, reaching speeds of up to 82 mph (132 km/h).',
+'what is the largest animal on Earth': 'The blue whale is the largest animal on Earth, reaching lengths of up to 100 feet and weighing up to 200 tons.',
+'what is the largest land animal': 'The African elephant is the largest land animal, weighing up to 12,000 pounds and standing around 10-13 feet tall.',
+'what is the smallest animal in the world': 'The bumblebee bat, also known as Kitti’s hog-nosed bat, is the smallest mammal, weighing only about 2 grams.',
+'what is the strongest animal in the world': 'The dung beetle is considered the strongest animal relative to its size, capable of pulling 1,141 times its own body weight.',
+'which animal has the longest lifespan': 'The ocean quahog, a species of clam, can live for over 500 years, making it the longest-living animal.',
+'which is the smartest animal in the world': 'The dolphin, particularly the bottlenose dolphin, is considered one of the most intelligent animals due to its problem-solving skills and complex social behavior.',
+'which animal has the best eyesight': 'The mantis shrimp has the most advanced eyesight, with 16 types of photoreceptors and the ability to see ultraviolet and polarized light.',
+'which animal has the best sense of smell': 'The African elephant has the best sense of smell, with around 2,000 olfactory receptor genes.',
+'which animal has the best hearing': 'The greater wax moth has the most sensitive hearing, capable of detecting sounds up to 300 kHz.',
+'which animal can live the longest without water': 'The kangaroo rat can survive for its entire life without drinking water, deriving moisture from the seeds it eats.',
+'which animal sleeps the most': 'The koala sleeps for up to 22 hours a day, making it one of the sleepiest animals.',
+'which animal sleeps the least': 'The giraffe sleeps for only about 30 minutes to 2 hours per day, often in short naps.',
+'which is the tallest animal in the world': 'The giraffe is the tallest animal in the world, with males reaching heights of up to 18 feet.',
+'which is the heaviest flying bird': 'The great bustard is the heaviest flying bird, weighing up to 40 pounds.',
+'which bird can fly the longest distance': 'The Arctic tern holds the record for the longest migration, flying around 44,000 miles annually between the Arctic and Antarctic.',
+'which bird can fly the highest': 'The Rüppell’s griffon vulture can fly at altitudes of over 37,000 feet, making it the highest-flying bird.',
+'which animal has the fastest bite': 'The trap-jaw ant has the fastest bite, snapping its jaws shut at 140 mph (225 km/h).',
+'which animal has the longest tongue': 'The giant anteater has the longest tongue relative to its body size, reaching up to 2 feet in length.',
+'which animal has the most powerful bite': 'The saltwater crocodile has the most powerful bite, with a force of about 3,700 pounds per square inch (PSI).',
+'which animal can jump the highest': 'The flea is the highest jumper relative to its size, capable of jumping 150 times its body length.',
+'which animal can run the longest distance': 'The wolf is an endurance runner, capable of traveling up to 30 miles per day while hunting.',
+'which animal is the fastest swimmer': 'The sailfish is the fastest swimmer, reaching speeds of up to 68 mph (110 km/h).',
+'which animal has the best night vision': 'Cats, especially big cats like tigers, have excellent night vision, allowing them to hunt in low light.',
+'which animal has the best camouflage': 'The mimic octopus is considered the best at camouflage, able to change its color, texture, and shape to blend with its surroundings.',
+'which animal produces the loudest sound': 'The sperm whale produces the loudest sound of any animal, reaching up to 230 decibels.',
+'which is the slowest animal in the world': 'The three-toed sloth is the slowest animal, moving at an average speed of 0.24 km/h (0.15 mph).',
+'which is the most poisonous animal': 'The box jellyfish is considered the most poisonous animal, with venom that can cause cardiac arrest within minutes.',
+'which animal is the deadliest to humans': 'Mosquitoes are the deadliest animals to humans, transmitting diseases that cause over a million deaths annually.',
+'which animal has the longest migration': 'The Arctic tern travels the longest migration route, covering about 44,000 miles annually.',
+'which is the largest reptile': 'The saltwater crocodile is the largest living reptile, growing up to 23 feet in length and weighing over 2,000 pounds.',
+'which is the largest fish': 'The whale shark is the largest fish, growing up to 40 feet long and weighing over 20 tons.',
+'which is the oldest living animal species': 'The horseshoe crab is considered one of the oldest living species, existing for over 450 million years.',
+'which is the most social animal': 'Ants are considered some of the most social animals, living in colonies with complex hierarchical structures.',
+'which animal has the biggest brain': 'The sperm whale has the largest brain of any animal, weighing up to 20 pounds.',
+'which mammal can fly': 'Bats are the only mammals capable of true sustained flight.',
+'which animal can regenerate body parts': 'The axolotl is known for its remarkable ability to regenerate limbs, spinal cord, and even parts of its heart and brain.',
+'which animal is immune to snake venom': 'The mongoose is immune to the venom of some of the most dangerous snakes, including cobras.',
+'which is the most venomous snake': 'The inland taipan is considered the most venomous snake in the world.',
+'which animal can survive extreme radiation': 'The tardigrade, also known as the water bear, can survive extreme radiation, vacuum, and high temperatures.',
+'default': 'I’m not sure how to respond to that. Try asking me about animals, nature, or wildlife.',
+            'what is cpu': 'The Central Processing Unit (CPU) is the brain of the computer. It processes instructions, performs calculations, and manages tasks. Modern CPUs have multiple cores (dual-core, quad-core, etc.) and threads for better multitasking.',
+'what is motherboard': 'The motherboard is the main circuit board that connects and allows communication between all components. It has slots for RAM, CPU, GPU, storage, and input/output devices. It also contains the BIOS/UEFI firmware, which initializes hardware during boot-up.',
+'what is RAM (Random Access Memory)': 'RAM is temporary memory that stores data actively used by the CPU. More RAM allows faster multitasking and improves performance in applications and gaming. Common types include DDR3, DDR4, and DDR5.',
+'what is storage (HDD/SSD)': 'Hard Disk Drives (HDDs) use spinning platters and are slower but cheaper. Solid-State Drives (SSDs) use flash memory, providing much faster read/write speeds. NVMe SSDs are even faster, connecting directly to the motherboard via PCIe slots.',
+'what is power supply unit (PSU)': 'The PSU converts AC power from the wall into DC power that the computer components can use. Wattage and efficiency ratings (80+ Bronze, Silver, Gold) determine how well it delivers stable power.',
+'what is graphics processing unit (GPU)': 'A GPU accelerates image and video rendering. Integrated GPUs are built into the CPU, while dedicated GPUs (NVIDIA, AMD) have their own VRAM for high-performance gaming, 3D rendering, and AI tasks.',
+'what is cooling system': 'Computers generate heat, so cooling is essential. Air cooling uses fans and heat sinks, while liquid cooling systems use water or coolant for better heat dissipation. Overheating can cause performance drops and hardware damage.',
+'what are input devices': 'Devices like keyboards, mice, touchscreens, scanners, and game controllers allow users to interact with the computer. Mechanical keyboards and gaming mice offer better precision and response times.',
+'what are output devices': 'Monitors display visual output, with different types like LED, OLED, and high-refresh-rate screens for gaming. Other output devices include speakers for sound and printers for physical copies of documents.',
+'what are expansion cards': 'These are additional components installed into motherboard slots (PCIe) for extra functionality. Examples include sound cards, network cards, and capture cards for streaming.',
+'what is BIOS/UEFI': 'The Basic Input/Output System (BIOS) or Unified Extensible Firmware Interface (UEFI) is firmware that initializes hardware before loading the operating system.',
+'what are networking components': 'Ethernet cards, Wi-Fi adapters, and routers enable internet connectivity. Wired connections (Ethernet) provide stable speeds, while wireless (Wi-Fi, Bluetooth) offers convenience.',
+'default': 'I’m not sure how to respond to that. Try asking me about hardware, operating systems, or computer components.',
+
+    'who is the best football player of all time': 'Many people argue that the best football player of all time is Diego Maradona, Pelé, or Lionel Messi. It’s subjective, but all are considered legends.',
+    'who is the current best football player': 'As of now, Lionel Messi and Cristiano Ronaldo are often regarded as the top players in the world, though this can vary depending on form and achievements.',
+    'who won the last world cup': 'The last FIFA World Cup was won by France in 2018. They defeated Croatia 4-2 in the final.',
+    'who won the world cup in 2014': 'Germany won the 2014 FIFA World Cup, defeating Argentina 1-0 in the final with a goal by Mario Götze.',
+    'who is the top scorer in the premier league': 'The all-time top scorer in the Premier League is Alan Shearer with 260 goals.',
+    'who won the champions league in 2023': 'Manchester City won the 2023 UEFA Champions League, defeating Inter Milan 1-0 in the final.',
+    'who is the best football club': 'The title of the best football club is subjective. Clubs like Real Madrid, Barcelona, Manchester United, and Bayern Munich are often considered the best based on their history and achievements.',
+    'who is the best football player in the premier league': 'As of now, players like Kevin De Bruyne, Mohamed Salah, and Erling Haaland are often considered among the best in the Premier League.',
+    'what is the premier league': 'The Premier League is the top professional football division in England, consisting of 20 teams. It is one of the most competitive and watched football leagues in the world.',
+    'what is la liga': 'La Liga is the top professional football division in Spain, known for teams like Real Madrid, Barcelona, and Atlético Madrid.',
+    'who won the champions league in 2022': 'Real Madrid won the 2022 UEFA Champions League, defeating Liverpool 1-0 in the final.',
+    'who is the top scorer of la liga': 'Lionel Messi is the top scorer of La Liga with 474 goals, playing for FC Barcelona.',
+    'who won the world cup in 1998': 'France won the 1998 FIFA World Cup, defeating Brazil 3-0 in the final.',
+    'who is the most successful club in the world': 'Real Madrid is the most successful football club in terms of major trophies, especially in the UEFA Champions League.',
+    'when was the first world cup': 'The first FIFA World Cup was held in 1930 in Uruguay, where the host nation won the tournament.',
+    'who is cristiano ronaldo': 'Cristiano Ronaldo is a Portuguese professional footballer who is widely regarded as one of the greatest players of all time. He has won numerous individual awards and team trophies, including five Ballon d\'Ors.',
+    'who is lionel messi': 'Lionel Messi is an Argentine footballer considered one of the best players of all time. He has won multiple Ballon d\'Ors and has had an illustrious career with Barcelona and Paris Saint-Germain, now he plays for inter miami',
+    'who won the europa league in 2023': 'Sevilla won the 2023 UEFA Europa League, defeating AS Roma on penalties after a 1-1 draw in the final.',
+    'what is the fifa world cup': 'The FIFA World Cup is the premier international football competition held every four years, contested by national teams from around the world.',
+    'how many times has brazil won the world cup': 'Brazil has won the FIFA World Cup 5 times (1958, 1962, 1970, 1994, and 2002), the most by any nation.',
+    'who is the top scorer in football history': 'The top scorer in football history is Josef Bican, who scored over 800 goals in official matches. However, modern players like Cristiano Ronaldo and Lionel Messi are closing in on this record.',
+    'who is the coach of brazil national team': 'As of now, the coach of the Brazil national football team is Tite.',
+    'who is the coach of argentina national team': 'The coach of the Argentina national football team is Lionel Scaloni.',
+    'who is the most successful manager in football': 'The most successful manager in football, based on trophies won, is Sir Alex Ferguson, who won 49 trophies during his career, mainly with Manchester United.',
+    'what is el clasico': 'El Clásico is the term for the fierce rivalry between Spanish football clubs FC Barcelona and Real Madrid. It’s one of the most famous and heated fixtures in world football.',
+    'who are you':'iam an ai called QBOT',
+     'what is the time now': getCurrentTime()
+     
+                
+            };
+
+            return getFuzzyResponse(userInput, responses);
+        }
+
+        function getFuzzyResponse(userInput, responses) {
+            const cleanedInput = userInput.toLowerCase().replace(/\s+/g, ' ').trim();  // Normalize spaces
+            console.log("User Input (Cleaned):", cleanedInput);
+
+            let closestMatch = '';
+            let smallestDistance = Infinity;
+
+            for (const key in responses) {
+                const cleanedKey = key.toLowerCase().replace(/\s+/g, ' ').trim();  // Clean predefined response as well
+                const distance = levenshtein(cleanedInput, cleanedKey);
+                console.log(`Checking match: ${cleanedKey}, Distance: ${distance}`);
+                
+                if (distance < smallestDistance) {
+                    smallestDistance = distance;
+                    closestMatch = key;
+                }
+            }
+
+            console.log("Closest Match:", closestMatch);
+            console.log("Smallest Distance:", smallestDistance);
+            
+            // Threshold can be adjusted for more lenient matching
+            if (smallestDistance <= 5) { 
+                return responses[closestMatch];
+            } else {
+                return responses['default'];
+            }
+        }
+
+        function levenshtein(a, b) {
+            var tmp;
+            var i, j, alen = a.length, blen = b.length;
+            var arr = [];
+
+            for (i = 0; i <= alen; i++) {
+                arr[i] = [i];
+            }
+            for (j = 0; j <= blen; j++) {
+                arr[0][j] = j;
+            }
+
+            for (i = 1; i <= alen; i++) {
+                for (j = 1; j <= blen; j++) {
+                    tmp = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+                    arr[i][j] = Math.min(arr[i - 1][j] + 1, arr[i][j - 1] + 1, arr[i - 1][j - 1] + tmp);
+                }
+            }
+
+            return arr[alen][blen];
+        }
+
+        function evaluateMath(input) {
+            try {
+                const result = eval(input.replace(/[^\d+\-*/^(). ]/g, '').replace('^', '**'));
+                if (!isNaN(result)) {
+                    return 'The result is: ' + result;
+                } else {
+                    return 'Sorry, I  there is a network issue please check it,and try again';
+                }
+            } catch (error) {
+                return 'Sorry, I think there is a network issue please check it,and try again';
+            }
+
+        }
+        function getCurrentTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            return `The current time is: ${hours}:${minutes}:${seconds}`;
+        }
+        
+ </script>
+</body>
+</html>
